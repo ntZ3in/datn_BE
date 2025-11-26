@@ -2,8 +2,7 @@ package bookcarupdate.bookcar.models;
 
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Value;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,7 +11,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "tbluser")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userID")

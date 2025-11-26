@@ -1,5 +1,6 @@
 package bookcarupdate.bookcar.repositories;
 
+import bookcarupdate.bookcar.dto.NoticeGetDTO;
 import bookcarupdate.bookcar.models.Notice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -7,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface NoticeRepository extends JpaRepository<Notice, Long> {
@@ -25,4 +27,25 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
 
     @Query(value = "SELECT n.* FROM notice_tb n ORDER BY n.last_update DESC", nativeQuery = true)
     List<Notice> getAllActiveNotice();
+
+    @Query(value = "select new bookcarupdate.bookcar.dto.NoticeGetDTO(nt.noticeID,p.productID,p.name, p.start_time, p.license_plates," +
+            "nt.title, nt.content, nt.createdAt, nt.lastUpdate, nt.expired)" +
+            "from Notice as nt " +
+            "INNER join Product as p ON (nt.product.productID = p.productID)" +
+            "where nt.product.productID =:id")
+    Optional<NoticeGetDTO> getNoticeByNoticeID(@Param("id") Long id);
+
+    @Query(value = "select new bookcarupdate.bookcar.dto.NoticeGetDTO(" +
+            "nt.noticeID,p.productID,p.name, " +
+            "p.start_time, " +
+            "p.license_plates, " +
+            "nt.title, " +
+            "nt.content, " +
+            "nt.createdAt, " +
+            "nt.lastUpdate, " +
+            "nt.expired) " +
+            "from Notice nt " +
+            "join nt.product p where p.store.storeID=:storeId")
+    List<NoticeGetDTO> getAllNotices(@Param("storeId") Long storeId);
+
 }

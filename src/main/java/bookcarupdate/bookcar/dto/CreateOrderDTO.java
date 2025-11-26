@@ -16,7 +16,6 @@ public class CreateOrderDTO {
     private double price;
     private double totalPrice;
     private String orderStatus;
-    private Long id;
+    private Long tripId; // => đặt sp nào, ngày nào
     private String emailUser;
-
 }

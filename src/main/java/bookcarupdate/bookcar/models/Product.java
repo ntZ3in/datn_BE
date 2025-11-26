@@ -5,14 +5,17 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.w3c.dom.Text;
 
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "tblproduct")
 public class Product {
@@ -30,7 +33,7 @@ public class Product {
     private LocalTime end_time;
     private Double price;
     private String name;
-    private int remain_seat;
+    private int quantity_seat;
     private String policy;
     private String utilities;
     private String type;
@@ -59,10 +62,39 @@ public class Product {
     @JsonManagedReference  // Đánh dấu mối quan hệ quản lý
     private List<Notice> noticeList;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    @JsonIdentityReference(alwaysAsId = true)
-    @JsonManagedReference  // Đánh dấu mối quan hệ quản lý
-    @JsonIgnore
-    private List<Order> orderList;
+    @Override
+    public String toString() {
+        return "Product{" +
+                "productID=" + productID +
+                ", license_plates='" + license_plates + '\'' +
+                ", description='" + description + '\'' +
+                ", phone_number='" + phone_number + '\'' +
+                ", phone_number2='" + phone_number2 + '\'' +
+                ", start_address='" + start_address + '\'' +
+                ", end_address='" + end_address + '\'' +
+                ", start_time=" + start_time +
+                ", end_time=" + end_time +
+                ", price=" + price +
+                ", name='" + name + '\'' +
+                ", quantity_seat=" + quantity_seat +
+                ", policy='" + policy + '\'' +
+                ", utilities='" + utilities + '\'' +
+                ", type='" + type + '\'' +
+                ", createAt=" + createAt +
+                ", updateAt=" + updateAt +
+                ", status='" + status + '\'' +
+                ", owner_name='" + owner_name + '\'' +
+                ", images=" + images +
+                ", store=" + store +
+                ", stopList=" + stopList +
+                ", noticeList=" + noticeList +
+                '}';
+    }
+
+    //    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+//    @JsonIdentityReference(alwaysAsId = true)
+//    @JsonManagedReference  // Đánh dấu mối quan hệ quản lý
+//    @JsonIgnore
+//    private List<Order> orderList;
 
 }

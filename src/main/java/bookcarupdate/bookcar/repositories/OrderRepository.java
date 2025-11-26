@@ -39,8 +39,19 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 //            , nativeQuery = true)
 //    List<OrderDto> getAllUserOrder(@Param("user_id") Long user_id);
 
-    @Query(value = "select o.* from tblorder o inner join tblproduct p on p.product_id = o.product_id inner join tbluser u ON o.user_id = u.user_id WHERE u.email = :email order by o.created_at desc",nativeQuery = true)
+    @Query(value = "select o.* from tblorder o inner join tbltrip t on t.trip_id = o.trip_id inner join tbluser u ON o.user_id = u.user_id WHERE u.email = :email order by o.created_at desc",nativeQuery = true)
     List<Order> findAllByEmailUser(@Param("email") String email);
-    @Query(value = "select o.* from tblorder o inner join tblproduct p on p.product_id = o.product_id inner join tblstore s ON s.store_id = p.store_id WHERE s.store_id = :id order by o.created_at desc", nativeQuery = true)
+
+    @Query(value = """
+        SELECT o.*
+        FROM tblorder o
+        INNER JOIN tbltrip t ON t.trip_id = o.trip_id
+        INNER JOIN tblproduct p ON t.product_id = p.product_id
+        INNER JOIN tblstore s ON s.store_id = p.store_id
+        WHERE s.store_id = :id
+        ORDER BY o.created_at DESC
+        """,
+            nativeQuery = true)
     List<Order> findAllByIdStore(@Param("id") Long id);
+
 }

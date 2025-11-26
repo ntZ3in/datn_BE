@@ -1,19 +1,23 @@
 package bookcarupdate.bookcar.services.impl;
 
+import bookcarupdate.bookcar.dto.CreateNoticeDTO;
+import bookcarupdate.bookcar.dto.ImageDTO;
 import bookcarupdate.bookcar.dto.ProductDTO;
+import bookcarupdate.bookcar.dto.ProductSearchDTO;
 import bookcarupdate.bookcar.exception.CloudNotFoundException;
-import bookcarupdate.bookcar.models.Image;
-import bookcarupdate.bookcar.models.Product;
-import bookcarupdate.bookcar.models.User;
+import bookcarupdate.bookcar.models.*;
 import bookcarupdate.bookcar.repositories.ImageRepository;
 import bookcarupdate.bookcar.repositories.ProductRepository;
 import bookcarupdate.bookcar.services.ProductService;
+import bookcarupdate.bookcar.services.TripService;
 import bookcarupdate.bookcar.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,6 +30,7 @@ public class ProductServiceImpl implements ProductService {
     private final UserService userService;
     private final ProductRepository productRepository;
     private final ImageRepository imageRepository;
+    private final TripService tripService;
 
     @Override
     public Product addProduct(ProductDTO productDTO) {
@@ -42,7 +47,7 @@ public class ProductServiceImpl implements ProductService {
             product.setName(productDTO.getName());
             product.setPhone_number(productDTO.getPhone_number());
             product.setPhone_number2(productDTO.getPhone_number2());
-            product.setRemain_seat(Integer.parseInt(String.valueOf(productDTO.getRemain_seat())));
+            product.setQuantity_seat(Integer.parseInt(String.valueOf(productDTO.getQuantity_seat())));
             product.setPrice(Double.parseDouble(String.valueOf(productDTO.getPrice())));
             product.setType(productDTO.getType());
             product.setPolicy(productDTO.getPolicy());
@@ -95,7 +100,7 @@ public class ProductServiceImpl implements ProductService {
             product.setName(productDTO.getName());
             product.setPhone_number(productDTO.getPhone_number());
             product.setPhone_number2(productDTO.getPhone_number2());
-            product.setRemain_seat(Integer.parseInt(String.valueOf(productDTO.getRemain_seat())));
+            product.setQuantity_seat(Integer.parseInt(String.valueOf(productDTO.getQuantity_seat())));
             product.setPrice(Double.parseDouble(String.valueOf(productDTO.getPrice())));
             product.setType(productDTO.getType());
             product.setPolicy(productDTO.getPolicy());
@@ -122,12 +127,110 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> findByKeyWord(String key) {
-        return productRepository.findByKeyWord(key);
+    public List<ProductSearchDTO> findByKeyWord(String key) {
+        List<Product> products = productRepository.findByKeyWord(key);
+        List<ProductSearchDTO> result = new ArrayList<>();
+        for(Product p : products){
+            Trip trip = tripService.getOrCreateTrip(p.getProductID(),LocalDate.now());
+            result.add(mapToDTO(p,trip));
+        }
+        return result;
     }
 
     @Override
-    public List<Product> findByManyKeyWord(LocalTime start_time, String start_address, String end_address) {
-        return productRepository.findByManyKeyWord(start_time,start_address,end_address);
+    public List<ProductSearchDTO> findByManyKeyWord(String startCity, String endCity, LocalTime startTime, LocalDate date,String startAddress,String endAddress) {
+        List<Product> products = productRepository.findByManyKeyWord(startCity,endCity,startTime,date, startAddress, endAddress);
+        List<ProductSearchDTO> result = new ArrayList<>();
+        for(Product p : products){
+            Trip trip = tripService.getOrCreateTrip(p.getProductID(),date);
+            result.add(mapToDTO(p,trip));
+        }
+        return result;
+    }
+
+    @Override
+    public Optional<Product> findById(Long id) {
+        return productRepository.findById(id);
+    }
+
+    @Override
+    public List<ProductSearchDTO> findAll2() {
+        return productRepository.findAll2();
+    }
+
+    @Override
+    public List<ProductSearchDTO> findAllPagi(int page, int number) {
+        if (page < 1) page = 1;
+        if (number < 1) number = 10;
+
+        Pageable pageable = PageRequest.of(page - 1, number);
+        return productRepository.findAllPagi(pageable).getContent();
+    }
+
+    @Override
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
+    }
+
+    private ProductSearchDTO mapToDTO(Product product, Trip trip) {
+        ProductSearchDTO dto = new ProductSearchDTO();
+
+        // Product info
+        dto.setProductID(product.getProductID());
+        dto.setLicense_plates(product.getLicense_plates());
+        dto.setDescription(product.getDescription());
+        dto.setPhone_number(product.getPhone_number());
+        dto.setPhone_number2(product.getPhone_number2());
+        dto.setStart_address(product.getStart_address());
+        dto.setEnd_address(product.getEnd_address());
+        dto.setStart_time(product.getStart_time());
+        dto.setEnd_time(product.getEnd_time());
+        dto.setPrice(product.getPrice());
+        dto.setName(product.getName());
+        dto.setQuantity_seat(product.getQuantity_seat());
+        dto.setPolicy(product.getPolicy());
+        dto.setUtilities(product.getUtilities());
+        dto.setType(product.getType());
+        dto.setCreateAt(product.getCreateAt());
+        dto.setUpdateAt(product.getUpdateAt());
+        dto.setStatus(product.getStatus());
+        dto.setOwner_name(product.getOwner_name());
+        dto.setStore_id(product.getStore().getStoreID());
+
+
+        // Trip info
+        dto.setTrip_id(trip.getTripId());
+        dto.setTravel_date(trip.getTravelDate());
+        dto.setTrip_start_time(trip.getStartTime());
+        dto.setTrip_end_time(trip.getEndTime());
+        dto.setTrip_price(trip.getPrice());
+        dto.setRemain_seat(trip.getRemainSeat());
+        dto.setTrip_status(trip.getStatus());
+
+        //list
+//        List<Image> images = product.getImages();
+//        List<ImageDTO> imageDTOS = new ArrayList<>();
+//        for( Image image : images){
+//            ImageDTO imageDTO = new ImageDTO();
+//            imageDTO.setImage_url(image.getImage_url());
+//            imageDTOS.add(imageDTO);
+//        }
+//        dto.setImageDTOS(imageDTOS);
+//
+//        List<Notice> notices = product.getNoticeList();
+//        List<CreateNoticeDTO> noticeDTOS = new ArrayList<>();
+//        for(Notice notice : notices){
+//            CreateNoticeDTO createNoticeDTO = new CreateNoticeDTO();
+//            createNoticeDTO.setProductId(product.getProductID());
+//            createNoticeDTO.setTitle(notice.getTitle());
+//            createNoticeDTO.setContent(notice.getContent());
+//            if( notice.isExpired()){
+//                createNoticeDTO.setStatus("Hết hiệu lực");
+//            } else {
+//                createNoticeDTO.setStatus("Còn hiệu lực");
+//            }
+//        }
+//        dto.setNoticeDTOS(noticeDTOS);
+        return dto;
     }
 }

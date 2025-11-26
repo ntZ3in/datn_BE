@@ -6,6 +6,7 @@ import bookcarupdate.bookcar.services.StoreService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,5 +17,9 @@ public class StoreServiceImpl implements StoreService {
     public Optional<Store> getStore(Long id) {
 
         return storeRepository.findById(id);
+    }
+
+    public List<Store> findAll(){
+        return storeRepository.findAll();
     }
 }

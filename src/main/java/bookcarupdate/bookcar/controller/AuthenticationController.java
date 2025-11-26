@@ -8,14 +8,14 @@ import bookcarupdate.bookcar.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequestMapping("/api/v1/auth/")
@@ -26,27 +26,49 @@ public class AuthenticationController {
     private final UserService userService;
     private final StoreService storeService;
     private final ProductService productService;
-    private final ProductRepository productRepository;
     private final OrderService orderService;
-    private final StoreRepository storeRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final NoticeService noticeService;
+    private final ImageService imageService;
 
+    // dùng cho trang quản lý product của store: ok
     @GetMapping("/get-all-product")
-    public ResponseEntity<List<Product>> getAllProduct() {
-        return ResponseEntity.ok(productRepository.findAll2());
+    public ResponseEntity<List<ProductSearchDTO>> getAllProduct() {
+        List<ProductSearchDTO> products = productService.findAll2();
+        for(ProductSearchDTO p : products){
+            System.out.println(p.toString());
+        }
+        return ResponseEntity.ok(productService.findAll2());
     }
 
     @GetMapping("/get-all-product-pagi/{page}")
     public ResponseEntity<Object> getAllProductPagi(@PathVariable("page") Integer page) {
-        int number = (int)(page-1)*10;
-        List<Product> products = productRepository.findAllPagi(10, number);
-        List<Product> products1 = productRepository.findAll2();
+//        int number = (int)(page-1)*10;
+//        List<ProductSearchDTO> products = productService.findAllPagi(10, number);
+//        List<ProductSearchDTO> products1 = productService.findAll2();
+//        Map<String, Object> data = new HashMap<>();
+//        int pageNumber = (int) Math.ceil((double) products1.size() / 10);
+//        data.put("pageNumber", pageNumber);
+//        data.put("data tong",products1);
+//        data.put("page", page);
+//        data.put("data", products);
+//        return ResponsiHandler.responsiBuider("Lấy dữ liệu thành công", HttpStatus.OK, data);
+        int size = 10; // số bản ghi mỗi trang
+
+        List<ProductSearchDTO> products = productService.findAllPagi(page, size);
+        List<ProductSearchDTO> productsAll = productService.findAll2(); // toàn bộ để tính pageNumber
+
         Map<String, Object> data = new HashMap<>();
-        int pageNumber = (int) Math.ceil((double) products1.size() / 10);
+        int pageNumber = (int) Math.ceil((double) productsAll.size() / size);
+
         data.put("pageNumber", pageNumber);
+        data.put("data tong", productsAll);
         data.put("page", page);
         data.put("data", products);
+
         return ResponsiHandler.responsiBuider("Lấy dữ liệu thành công", HttpStatus.OK, data);
     }
+
     @PostMapping("/sign-up")
     public ResponseEntity<User> signUp(@RequestBody SignUpRequest signUpRequest) {
         return ResponseEntity.ok(authenticationService.signUp(signUpRequest));
@@ -77,6 +99,7 @@ public class AuthenticationController {
     @GetMapping("/get-user/{email}")
     private ResponseEntity<User> getUser(@PathVariable("email") String email) {
         System.out.println("email:" + email);
+        System.out.println(userService.getCurrentUser(email).getUsername());
         return ResponseEntity.ok(userService.getCurrentUser(email));
     }
 
@@ -93,42 +116,47 @@ public class AuthenticationController {
 
     @GetMapping("/get-product/{id}")
     private ResponseEntity<Optional<Product>> getRoleUser(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(productRepository.findById(id));
+        return ResponseEntity.ok(productService.findById(id));
     }
 
+    // tạm
     @PostMapping("/create-order")
     private ResponseEntity<Order> createOrder(@RequestBody CreateOrderDTO createOrderDTO) {
         return ResponseEntity.ok(orderService.createOrder(createOrderDTO));
     }
-
+//
     @GetMapping("/get-order/{id}")
     private ResponseEntity<Optional<Order>> getOrder(@PathVariable("id") Long id) {
         return ResponseEntity.ok(orderService.getOrder(id));
     }
-
+//
     @PutMapping("/update-order/{id}")
     private ResponseEntity<Order> updateOrder(@PathVariable("id") Long id, @RequestBody UpdateOrderDTO updateOrderDTO) {
         return ResponseEntity.ok(orderService.updateOrder(updateOrderDTO, id));
     }
-
+//
     @GetMapping("/get-all-order-by-email-user/{email}")
     private ResponseEntity<List<Order>> getOrderByEmailUser(@PathVariable("email") String email) {
         return ResponseEntity.ok(orderService.getAllOrderByEmailUser(email));
     }
-
+//
     @GetMapping("/search")
-    private ResponseEntity<List<Product>> findByKeyWord(@RequestParam(value = "key", required = false) String key, @RequestParam(value = "start_time", required = false) LocalTime start_time, @RequestParam(value = "start_address", required = false) String start_address, @RequestParam(value = "end_address", required = false) String end_address) {
-        System.out.println(start_address + " " + end_address + " " + start_time);
+    private ResponseEntity<List<ProductSearchDTO>> findByKeyWord(@RequestParam(value = "key", required = false) String key,
+                                                        @RequestParam(value = "start_city", required = false) String startCity,
+                                                        @RequestParam(value = "end_city", required = false) String endCity,
+                                                        @RequestParam(value = "start_time", required = false) LocalTime startTime,
+                                                        @RequestParam(value = "date", required = false) LocalDate date,
+                                                        @RequestParam(value = "start_address", required = false) String startAddress,
+                                                        @RequestParam(value = "end_address", required = false) String endAddress) {
         if (key != null) {
             return ResponseEntity.ok(productService.findByKeyWord(key));
         }
-//        return null;
-        return ResponseEntity.ok(productService.findByManyKeyWord(start_time, start_address, end_address));
+        return ResponseEntity.ok(productService.findByManyKeyWord(startCity,endCity,startTime,date, startAddress, endAddress));
     }
-
+//
     @GetMapping("/get-owner-name")
     private ResponseEntity<List<Store>> getAllStore() {
-        return ResponseEntity.ok(storeRepository.findAll());
+        return ResponseEntity.ok(storeService.findAll());
     }
 
     @PostMapping("/add-product")
@@ -143,14 +171,13 @@ public class AuthenticationController {
     @PutMapping("/update-product/{id}")
     private ResponseEntity<Product> updateProduct(@PathVariable("id") Long id, @RequestBody ProductDTO productDTO ) {
         return ResponseEntity.ok(productService.updateProduct(id, productDTO));
-    }
+    }//
     @DeleteMapping("/delete-product/{id}")
     private ResponseEntity deleteProduct(@PathVariable("id") Long id) {
-        productRepository.deleteById(id);
+        productService.deleteProduct(id);
         return ResponseEntity.ok("Xoá thành công");
     }
-
-    //    store
+//
     @PostMapping("/get-all-product-by-idstore")
     private ResponseEntity<List<Product>> getAllProdut(@RequestBody GetProductDTO productDTO) {
         System.out.println("id: "+productDTO.getId());
@@ -161,9 +188,89 @@ public class AuthenticationController {
         orderService.deleteOrder(id);
         return ResponseEntity.ok("Xoá thành công");
     }
-
+//
     @GetMapping("/get-all-order-by-id-store/{idstore}")
     private ResponseEntity<List<Order>> getOrderByIdStore(@PathVariable("idstore") Long id) {
         return ResponseEntity.ok(orderService.getAllOrderByIdStore(id));
+    }
+
+    @PutMapping("/change-password/{email}")
+    public ResponseEntity<?> changePassword(
+            @PathVariable("email") String email,
+            @RequestBody Map<String, String> body
+    ) {
+        String newPassword = body.get("password");
+
+        if (newPassword == null || newPassword.isEmpty()) {
+            return ResponseEntity.badRequest().body("Mật khẩu mới không được để trống");
+        }
+
+        try {
+            User user = userService.getCurrentUser(email);
+            // mã hóa mật khẩu bằng BCrypt trước khi lưu
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userService.save(user);
+
+            return ResponseEntity.ok("Đổi mật khẩu thành công");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Đổi mật khẩu thất bại: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/update-user/{email}")
+    public ResponseEntity<User> updateUser(
+            @PathVariable("email") String email,
+            @RequestBody UserUpdateRequest request) {
+
+        User user = userService.getCurrentUser(email);
+
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Cập nhật email, phone
+        user.setEmail(request.getEmail());
+        user.setPhone_number(request.getPhone_number());
+
+        // Nếu có nhập mật khẩu mới thì mã hóa
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            user.setPassword(new BCryptPasswordEncoder().encode(request.getPassword()));
+        }
+
+        userService.save(user);
+
+        return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/create-notification")
+    public ResponseEntity<Notice> createNotification(@RequestBody CreateNoticeDTO dto) {
+        return ResponseEntity.ok(noticeService.createNotice(dto));
+    }
+
+    @GetMapping("/get-all-notice-by-storeId/{storeId}")
+    public ResponseEntity<List<NoticeGetDTO>> getAllNoticeByStoreId(@PathVariable("storeId") Long storeId){
+        List<NoticeGetDTO> noticeGetDTOS = noticeService.getAllNotices(storeId);
+        for( NoticeGetDTO nt : noticeGetDTOS){
+            System.out.println(nt.toString());
+        }
+        return ResponseEntity.ok(noticeService.getAllNotices(storeId));
+    }
+
+    @DeleteMapping("/delete-notice/{id}")
+    public ResponseEntity<Void> deleteNotice(@PathVariable("id") Long id){
+        noticeService.deleteNotice(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/update-notice/{id}")
+    public ResponseEntity<Notice> updateNotice(@PathVariable("id") Long id, @RequestBody CreateNoticeDTO dto){
+        return ResponseEntity.ok(noticeService.updateNotice(id, dto));
+    }
+
+    @GetMapping("/{productId}/images")
+    public ResponseEntity<List<ImageDTO>> getImagesByProduct(@PathVariable Long productId) {
+        List<ImageDTO> images = imageService.getImagesByProductId(productId);
+        return ResponseEntity.ok(images);
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
@@ -28,11 +29,7 @@ public class UserServiceImpl implements UserService {
         };
     }
 
-//    @Override
-//    public List<User> getUser1() {
-//        return userRepository.findAll();
-//    }
-//
+
     @Override
     public User getCurrentUser(String email) {
         try{
@@ -42,5 +39,9 @@ public class UserServiceImpl implements UserService {
             throw new CloudNotFoundException("Lỗi tìm user");
         }
 
+    }
+
+    public User save(User user){
+        return userRepository.save(user);
     }
 }

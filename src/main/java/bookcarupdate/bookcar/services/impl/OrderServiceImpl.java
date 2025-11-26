@@ -6,9 +6,11 @@ import bookcarupdate.bookcar.dto.UpdateOrderDTO;
 import bookcarupdate.bookcar.exception.CloudNotFoundException;
 import bookcarupdate.bookcar.models.Order;
 import bookcarupdate.bookcar.models.Product;
+import bookcarupdate.bookcar.models.Trip;
 import bookcarupdate.bookcar.models.User;
 import bookcarupdate.bookcar.repositories.OrderRepository;
 import bookcarupdate.bookcar.repositories.ProductRepository;
+import bookcarupdate.bookcar.repositories.TripRepository;
 import bookcarupdate.bookcar.repositories.UserRepository;
 import bookcarupdate.bookcar.services.OrderService;
 import lombok.AllArgsConstructor;
@@ -22,8 +24,8 @@ import java.util.Optional;
 @AllArgsConstructor
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final TripRepository tripRepository;
     @Override
     public Order createOrder(CreateOrderDTO createOrderDTO) {
         System.out.println(createOrderDTO);
@@ -39,9 +41,13 @@ public class OrderServiceImpl implements OrderService {
         order.setPickTime(createOrderDTO.getPickTime());
         order.setPickUpAddress(createOrderDTO.getPickUpAddress());
         order.setLastUpdate(new Date());
-        Product product = productRepository.findById(createOrderDTO.getId()).get();
+        Trip trip = tripRepository.findById(createOrderDTO.getTripId()).orElseThrow(()->new CloudNotFoundException("Trip not found"));
+        if(trip.getRemainSeat() < createOrderDTO.getQuantity()){
+            throw new RuntimeException("Not enough seats available");
+        }
+        trip.setRemainSeat(trip.getRemainSeat() - createOrderDTO.getQuantity());
         User user = userRepository.findByEmail(createOrderDTO.getEmailUser()).get();
-        order.setProduct(product);
+        order.setTrip(trip);
         order.setUser(user);
         return orderRepository.save(order);
     }
