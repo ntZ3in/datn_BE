@@ -14,6 +14,7 @@ public interface ProductService {
     public Product addProduct(ProductDTO productDTO);
     public List<Product> getAllProductByIdStore(Long id);
     public Product updateProduct(Long id, ProductDTO productDTO);
+    public Product updateStatusProduct(Long id);
     public Page<Product> getProductPagination(int pageof, int pagesize);
 
     public List<ProductSearchDTO> findByKeyWord(String key);

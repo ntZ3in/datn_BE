@@ -45,4 +45,36 @@ public class ProductSearchDTO {
     private int remain_seat;
     private String trip_status;
 
+    @Override
+    public String toString() {
+        return "ProductSearchDTO{" +
+                "productID=" + productID +
+                ", license_plates='" + license_plates + '\'' +
+                ", description='" + description + '\'' +
+                ", phone_number='" + phone_number + '\'' +
+                ", phone_number2='" + phone_number2 + '\'' +
+                ", start_address='" + start_address + '\'' +
+                ", end_address='" + end_address + '\'' +
+                ", start_time=" + start_time +
+                ", end_time=" + end_time +
+                ", price=" + price +
+                ", name='" + name + '\'' +
+                ", quantity_seat=" + quantity_seat +
+                ", policy='" + policy + '\'' +
+                ", utilities='" + utilities + '\'' +
+                ", type='" + type + '\'' +
+                ", createAt=" + createAt +
+                ", updateAt=" + updateAt +
+                ", status='" + status + '\'' +
+                ", owner_name='" + owner_name + '\'' +
+                ", store_id=" + store_id +
+                ", trip_id=" + trip_id +
+                ", travel_date=" + travel_date +
+                ", trip_start_time=" + trip_start_time +
+                ", trip_end_time=" + trip_end_time +
+                ", trip_price=" + trip_price +
+                ", remain_seat=" + remain_seat +
+                ", trip_status='" + trip_status + '\'' +
+                '}';
+    }
 }

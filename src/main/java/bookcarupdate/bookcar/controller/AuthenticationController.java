@@ -43,16 +43,6 @@ public class AuthenticationController {
 
     @GetMapping("/get-all-product-pagi/{page}")
     public ResponseEntity<Object> getAllProductPagi(@PathVariable("page") Integer page) {
-//        int number = (int)(page-1)*10;
-//        List<ProductSearchDTO> products = productService.findAllPagi(10, number);
-//        List<ProductSearchDTO> products1 = productService.findAll2();
-//        Map<String, Object> data = new HashMap<>();
-//        int pageNumber = (int) Math.ceil((double) products1.size() / 10);
-//        data.put("pageNumber", pageNumber);
-//        data.put("data tong",products1);
-//        data.put("page", page);
-//        data.put("data", products);
-//        return ResponsiHandler.responsiBuider("Lấy dữ liệu thành công", HttpStatus.OK, data);
         int size = 10; // số bản ghi mỗi trang
 
         List<ProductSearchDTO> products = productService.findAllPagi(page, size);
@@ -119,37 +109,50 @@ public class AuthenticationController {
         return ResponseEntity.ok(productService.findById(id));
     }
 
-    // tạm
+    // tạm k dùng đến
     @PostMapping("/create-order")
     private ResponseEntity<Order> createOrder(@RequestBody CreateOrderDTO createOrderDTO) {
         return ResponseEntity.ok(orderService.createOrder(createOrderDTO));
     }
+
+    @PostMapping("/create-order2")
+    private ResponseEntity<Map<String, Object>> createOrder2(@RequestBody CreateOrderDTO createOrderDTO) {
+        return ResponseEntity.ok(orderService.createOrder2(createOrderDTO));
+    }
+
 //
-    @GetMapping("/get-order/{id}")
-    private ResponseEntity<Optional<Order>> getOrder(@PathVariable("id") Long id) {
+    @GetMapping("/get-order/{orderId}")
+    private ResponseEntity<Optional<Order>> getOrder(@PathVariable("orderId") Long id) {
         return ResponseEntity.ok(orderService.getOrder(id));
     }
 //
-    @PutMapping("/update-order/{id}")
-    private ResponseEntity<Order> updateOrder(@PathVariable("id") Long id, @RequestBody UpdateOrderDTO updateOrderDTO) {
+    @PutMapping("/update-order/{orderId}")
+    private ResponseEntity<Order> updateOrder(@PathVariable("orderId") Long id, @RequestBody UpdateOrderDTO updateOrderDTO) {
         return ResponseEntity.ok(orderService.updateOrder(updateOrderDTO, id));
     }
 //
     @GetMapping("/get-all-order-by-email-user/{email}")
-    private ResponseEntity<List<Order>> getOrderByEmailUser(@PathVariable("email") String email) {
+    private ResponseEntity<List<GetOrderDTO>> getOrderByEmailUser(@PathVariable("email") String email) {
         return ResponseEntity.ok(orderService.getAllOrderByEmailUser(email));
     }
 //
     @GetMapping("/search")
     private ResponseEntity<List<ProductSearchDTO>> findByKeyWord(@RequestParam(value = "key", required = false) String key,
-                                                        @RequestParam(value = "start_city", required = false) String startCity,
-                                                        @RequestParam(value = "end_city", required = false) String endCity,
+                                                        @RequestParam(value = "from_city", required = false) String startCity,
+                                                        @RequestParam(value = "to_city", required = false) String endCity,
                                                         @RequestParam(value = "start_time", required = false) LocalTime startTime,
                                                         @RequestParam(value = "date", required = false) LocalDate date,
                                                         @RequestParam(value = "start_address", required = false) String startAddress,
                                                         @RequestParam(value = "end_address", required = false) String endAddress) {
+        System.out.println("key: " + key+", fromcity: " + startCity+", tocity: "+ endCity+", starttime: "+ startTime+", date: "+ date+", startadd: "+ startAddress+", endadd:" + endAddress);
         if (key != null) {
+            for( ProductSearchDTO p : productService.findByKeyWord(key)){
+                System.out.println(p.toString());
+            }
             return ResponseEntity.ok(productService.findByKeyWord(key));
+        }
+        for( ProductSearchDTO p : productService.findByManyKeyWord(startCity, endCity, startTime, date, startAddress, endAddress)){
+            System.out.println(p.toString());
         }
         return ResponseEntity.ok(productService.findByManyKeyWord(startCity,endCity,startTime,date, startAddress, endAddress));
     }
@@ -172,6 +175,12 @@ public class AuthenticationController {
     private ResponseEntity<Product> updateProduct(@PathVariable("id") Long id, @RequestBody ProductDTO productDTO ) {
         return ResponseEntity.ok(productService.updateProduct(id, productDTO));
     }//
+
+    @PutMapping("/update-status-product/{id}")
+    private ResponseEntity<Product> updateStatusProduct(@PathVariable("id") Long id){
+        return ResponseEntity.ok(productService.updateStatusProduct(id));
+    }
+
     @DeleteMapping("/delete-product/{id}")
     private ResponseEntity deleteProduct(@PathVariable("id") Long id) {
         productService.deleteProduct(id);
@@ -183,14 +192,14 @@ public class AuthenticationController {
         System.out.println("id: "+productDTO.getId());
         return ResponseEntity.ok(productService.getAllProductByIdStore(productDTO.getId()));
     }
-    @DeleteMapping("/delete-order/{id}")
-    private ResponseEntity deleteOrder(@PathVariable("id") Long id) {
+    @DeleteMapping("/delete-order/{orderId}")
+    private ResponseEntity deleteOrder(@PathVariable("orderId") Long id) {
         orderService.deleteOrder(id);
         return ResponseEntity.ok("Xoá thành công");
     }
 //
     @GetMapping("/get-all-order-by-id-store/{idstore}")
-    private ResponseEntity<List<Order>> getOrderByIdStore(@PathVariable("idstore") Long id) {
+    private ResponseEntity<List<GetOrderDTO>> getOrderByIdStore(@PathVariable("idstore") Long id) {
         return ResponseEntity.ok(orderService.getAllOrderByIdStore(id));
     }
 

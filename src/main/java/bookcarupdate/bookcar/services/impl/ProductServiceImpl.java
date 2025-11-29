@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -80,6 +81,18 @@ public class ProductServiceImpl implements ProductService {
         Optional<Product> productOptional = productRepository.findById(product_id);
         return productOptional.get();
     }
+
+    @Override
+    public Product updateStatusProduct(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(()->new RuntimeException("Not found"));
+        if(product.getStatus().equalsIgnoreCase("Hiện")){
+            product.setStatus("Ẩn");
+        }else {
+            product.setStatus("Hiện");
+        }
+        return productRepository.save(product);
+    }
+
     @Override
     public Product updateProduct(Long id, ProductDTO productDTO) {
         try {
@@ -131,7 +144,8 @@ public class ProductServiceImpl implements ProductService {
         List<Product> products = productRepository.findByKeyWord(key);
         List<ProductSearchDTO> result = new ArrayList<>();
         for(Product p : products){
-            Trip trip = tripService.getOrCreateTrip(p.getProductID(),LocalDate.now());
+            Trip trip = tripService.getOrCreateTrip(p.getProductID(),LocalDate.now(), LocalTime.now())
+                    .orElseThrow(() -> new RuntimeException("Not found trip"));
             result.add(mapToDTO(p,trip));
         }
         return result;
@@ -139,11 +153,16 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductSearchDTO> findByManyKeyWord(String startCity, String endCity, LocalTime startTime, LocalDate date,String startAddress,String endAddress) {
-        List<Product> products = productRepository.findByManyKeyWord(startCity,endCity,startTime,date, startAddress, endAddress);
+        List<Product> products = productRepository.findByManyKeyWord(startCity,endCity, startAddress, endAddress);
         List<ProductSearchDTO> result = new ArrayList<>();
         for(Product p : products){
-            Trip trip = tripService.getOrCreateTrip(p.getProductID(),date);
-            result.add(mapToDTO(p,trip));
+            Optional<Trip> trip = tripService.getOrCreateTrip(p.getProductID(),date, startTime);
+            if(trip.isPresent()){
+                System.out.println("trip tim duoc dang co: "+ trip.get().getTripId());
+                result.add(mapToDTO(p,trip.get()));
+            }else {
+                System.out.println("k co trip tuong ung");
+            }
         }
         return result;
     }
@@ -205,32 +224,8 @@ public class ProductServiceImpl implements ProductService {
         dto.setTrip_end_time(trip.getEndTime());
         dto.setTrip_price(trip.getPrice());
         dto.setRemain_seat(trip.getRemainSeat());
-        dto.setTrip_status(trip.getStatus());
+        dto.setTrip_status(trip.getStatus());// TRUE FALSE
 
-        //list
-//        List<Image> images = product.getImages();
-//        List<ImageDTO> imageDTOS = new ArrayList<>();
-//        for( Image image : images){
-//            ImageDTO imageDTO = new ImageDTO();
-//            imageDTO.setImage_url(image.getImage_url());
-//            imageDTOS.add(imageDTO);
-//        }
-//        dto.setImageDTOS(imageDTOS);
-//
-//        List<Notice> notices = product.getNoticeList();
-//        List<CreateNoticeDTO> noticeDTOS = new ArrayList<>();
-//        for(Notice notice : notices){
-//            CreateNoticeDTO createNoticeDTO = new CreateNoticeDTO();
-//            createNoticeDTO.setProductId(product.getProductID());
-//            createNoticeDTO.setTitle(notice.getTitle());
-//            createNoticeDTO.setContent(notice.getContent());
-//            if( notice.isExpired()){
-//                createNoticeDTO.setStatus("Hết hiệu lực");
-//            } else {
-//                createNoticeDTO.setStatus("Còn hiệu lực");
-//            }
-//        }
-//        dto.setNoticeDTOS(noticeDTOS);
         return dto;
     }
 }

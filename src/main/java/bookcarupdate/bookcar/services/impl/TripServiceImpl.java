@@ -8,7 +8,10 @@ import bookcarupdate.bookcar.services.TripService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Service
@@ -18,16 +21,27 @@ public class TripServiceImpl implements TripService {
     private final ProductRepository productRepository;
 
     @Override
-    public Trip getOrCreateTrip(Long productId, LocalDate travelDate) {
-        Optional<Trip> existing = tripRepository.findByProductProductIDAndTravelDate(productId, travelDate);
+    public Optional<Trip> getOrCreateTrip(Long productId, LocalDate travelDate, LocalTime startTime) {
+        Optional<Trip> existing = tripRepository.findByProductProductIDAndTravelDate(productId, travelDate); // duy nhat 1 sản phẩm - 1 ngày
+        System.out.println("productid: "+ productId+", travelDate: " + travelDate +" startTime: " + startTime);
 
         if (existing.isPresent()) {
-            return existing.get();
+            Trip trip = existing.get();
+            // chỉ trả về nếu start_time >= tham số
+            if (!trip.getStartTime().isBefore(startTime) && trip.getStatus().equalsIgnoreCase("TRUE")) {
+                return Optional.of(trip);
+            }else {
+                return Optional.empty();
+            }
         }
 
+        // Nếu chưa co trip của ngày đó
         // Lấy Product (tuyến cố định)
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
+        if (product.getStart_time().isBefore(startTime)) {
+            return Optional.empty();
+        }
 
         // Tạo Trip từ Product (template)
         Trip trip = new Trip();
@@ -37,8 +51,9 @@ public class TripServiceImpl implements TripService {
         trip.setEndTime(product.getEnd_time());
         trip.setPrice(product.getPrice());
         trip.setRemainSeat(product.getQuantity_seat());
-        trip.setStatus("ACTIVE");
+        trip.setStatus("TRUE");
 
-        return tripRepository.save(trip);
+        tripRepository.save(trip);
+        return Optional.of(trip);
     }
 }

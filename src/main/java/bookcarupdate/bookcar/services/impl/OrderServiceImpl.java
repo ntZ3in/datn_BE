@@ -1,6 +1,7 @@
 package bookcarupdate.bookcar.services.impl;
 
 import bookcarupdate.bookcar.dto.CreateOrderDTO;
+import bookcarupdate.bookcar.dto.GetOrderDTO;
 import bookcarupdate.bookcar.dto.OrderDTO;
 import bookcarupdate.bookcar.dto.UpdateOrderDTO;
 import bookcarupdate.bookcar.exception.CloudNotFoundException;
@@ -16,9 +17,7 @@ import bookcarupdate.bookcar.services.OrderService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -41,7 +40,8 @@ public class OrderServiceImpl implements OrderService {
         order.setPickTime(createOrderDTO.getPickTime());
         order.setPickUpAddress(createOrderDTO.getPickUpAddress());
         order.setLastUpdate(new Date());
-        Trip trip = tripRepository.findById(createOrderDTO.getTripId()).orElseThrow(()->new CloudNotFoundException("Trip not found"));
+
+        Trip trip = tripRepository.findById(createOrderDTO.getId()).orElseThrow(()->new CloudNotFoundException("Trip not found"));
         if(trip.getRemainSeat() < createOrderDTO.getQuantity()){
             throw new RuntimeException("Not enough seats available");
         }
@@ -51,10 +51,63 @@ public class OrderServiceImpl implements OrderService {
         order.setUser(user);
         return orderRepository.save(order);
     }
+    public Map<String, Object> createOrder2(CreateOrderDTO createOrderDTO) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Order order = new Order();
+            order.setCreatedAt(new Date());
+            order.setOrderStatus(createOrderDTO.getOrderStatus());
+            order.setMessage(createOrderDTO.getMessage());
+            order.setPrice(createOrderDTO.getPrice());
+            order.setQuantity(createOrderDTO.getQuantity());
+            order.setTotalPrice(createOrderDTO.getTotalPrice());
+            order.setDestinationAddress(createOrderDTO.getDestinationAddress());
+            order.setPhoneNumber(createOrderDTO.getPhoneNumber());
+            order.setPickTime(createOrderDTO.getPickTime());
+            order.setPickUpAddress(createOrderDTO.getPickUpAddress());
+            order.setLastUpdate(new Date());
+
+            Trip trip = tripRepository.findById(createOrderDTO.getId()).orElse(null);
+            if(trip == null) {
+                response.put("status", "error");
+                response.put("message", "Trip không tồn tại");
+                return response;
+            }
+
+            if(trip.getRemainSeat() < createOrderDTO.getQuantity()){
+                response.put("status", "error");
+                response.put("message", "Số ghế không đủ");
+                return response;
+            }
+
+            trip.setRemainSeat(trip.getRemainSeat() - createOrderDTO.getQuantity());
+            tripRepository.save(trip);
+
+            User user = userRepository.findByEmail(createOrderDTO.getEmailUser()).orElse(null);
+            order.setTrip(trip);
+            order.setUser(user);
+            orderRepository.save(order);
+
+            response.put("status", "success");
+            response.put("order", order);
+            return response;
+
+        } catch(Exception e){
+            response.put("status", "error");
+            response.put("message", "Có lỗi xảy ra, vui lòng thử lại");
+            return response;
+        }
+    }
+
 
     @Override
     public Order updateOrder(UpdateOrderDTO updateOrderDTO, Long id) {
-        Order order = orderRepository.findById(id).get();
+        Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
+        if( updateOrderDTO.getStatus().equalsIgnoreCase("Đã hủy")){
+            Trip trip = order.getTrip();
+            trip.setRemainSeat(trip.getRemainSeat() + order.getQuantity());
+            tripRepository.save(trip);
+        }
         order.setOrderStatus(updateOrderDTO.getStatus());
         order.setLastUpdate(new Date());
         return orderRepository.save(order);
@@ -74,11 +127,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getAllOrderByIdStore(Long id) {
+    public List<GetOrderDTO> getAllOrderByIdStore(Long id) {
         return orderRepository.findAllByIdStore(id);
     }
 
-    public List<Order> getAllOrderByEmailUser(String email) {
+    public List<GetOrderDTO> getAllOrderByEmailUser(String email) {
         return orderRepository.findAllByEmailUser(email);
     }
 }

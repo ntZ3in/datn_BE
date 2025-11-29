@@ -2,8 +2,11 @@ package bookcarupdate.bookcar.services;
 
 import bookcarupdate.bookcar.models.Trip;
 
+import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Optional;
 
 public interface TripService {
-    public Trip getOrCreateTrip(Long productId, LocalDate travelDate);
+    public Optional<Trip> getOrCreateTrip(Long productId, LocalDate travelDate, LocalTime startTime);
 }

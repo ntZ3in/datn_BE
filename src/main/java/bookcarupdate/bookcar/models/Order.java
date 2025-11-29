@@ -1,6 +1,7 @@
 package bookcarupdate.bookcar.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -33,6 +34,7 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonBackReference  // Đánh dấu mối quan hệ không quản lý
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User user;
 
     @ManyToOne

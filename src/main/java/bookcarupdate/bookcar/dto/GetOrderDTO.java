@@ -1,12 +1,18 @@
 package bookcarupdate.bookcar.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
-public class CreateOrderDTO {
+@AllArgsConstructor
+public class GetOrderDTO {
+    private Long orderId;
+    private String name; // tên vé
+    private String owner_name; // tên nhà xe
     private String pickUpAddress;
     private String destinationAddress;
     private LocalDateTime pickTime;
@@ -16,6 +22,8 @@ public class CreateOrderDTO {
     private double price;
     private double totalPrice;
     private String orderStatus;
-    private Long id; // => id order
-    private String emailUser;
+    private Long tripId; // => đặt sp nào, ngày nào
+    private Date createdAt;
+//    private String emailUser;
+
 }

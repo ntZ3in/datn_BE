@@ -1,9 +1,6 @@
 package bookcarupdate.bookcar.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
 import org.w3c.dom.Text;
@@ -18,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "tblproduct")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

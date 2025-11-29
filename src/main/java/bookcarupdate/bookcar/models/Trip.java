@@ -1,5 +1,6 @@
 package bookcarupdate.bookcar.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @Getter
 @Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Trip {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
