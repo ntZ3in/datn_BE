@@ -25,11 +25,11 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
 //            , nativeQuery = true)
 //    List<NoticeDTO> getAllStoreNotice(@Param("store_id") Long store_id);
 
-    @Query(value = "SELECT n.* FROM notice_tb n ORDER BY n.last_update DESC", nativeQuery = true)
-    List<Notice> getAllActiveNotice();
+//    @Query(value = "SELECT n.* FROM notice_tb n ORDER BY n.last_update DESC", nativeQuery = true)
+//    List<Notice> getAllActiveNotice();
 
     @Query(value = "select new bookcarupdate.bookcar.dto.NoticeGetDTO(nt.noticeID,p.productID,p.name, p.start_time, p.license_plates," +
-            "nt.title, nt.content, nt.createdAt, nt.lastUpdate, nt.expired)" +
+            "nt.title, nt.content, nt.createdAt, nt.lastUpdate, nt.status)" +
             "from Notice as nt " +
             "INNER join Product as p ON (nt.product.productID = p.productID)" +
             "where nt.product.productID =:id")
@@ -43,7 +43,7 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
             "nt.content, " +
             "nt.createdAt, " +
             "nt.lastUpdate, " +
-            "nt.expired) " +
+            "nt.status) " +
             "from Notice nt " +
             "join nt.product p where p.store.storeID=:storeId")
     List<NoticeGetDTO> getAllNotices(@Param("storeId") Long storeId);

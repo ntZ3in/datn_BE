@@ -40,11 +40,7 @@ public class NoticeServiceImpl implements NoticeService {
                 .orElseThrow(() -> new RuntimeException("ID sản phẩm không đúng!"));
         notice.setProduct(product);
         notice.setLastUpdate(new Date());
-        if( dto.getStatus().equalsIgnoreCase("Còn hiệu lực")){
-            notice.setExpired(false);
-        }else {
-            notice.setExpired(true);
-        }
+        notice.setStatus(dto.getStatus());
 
         Store store = product.getStore();
         notice.setStoreName(store.getStoreName());
@@ -62,11 +58,7 @@ public class NoticeServiceImpl implements NoticeService {
         notice.setProduct(productRepository.findById(createNoticeDTO.getProductId()).orElseThrow(()-> new RuntimeException("Not found")));
         notice.setTitle(createNoticeDTO.getTitle());
         notice.setContent(createNoticeDTO.getContent());
-        if(createNoticeDTO.getStatus().equalsIgnoreCase("Còn hiệu lực")){
-            notice.setExpired(false);
-        } else {
-            notice.setExpired(true);
-        }
+        notice.setStatus(createNoticeDTO.getStatus());
         notice.setLastUpdate(new Date());
         return noticeRepository.save(notice);
     }

@@ -21,7 +21,7 @@ public class Notice {
     private String content;
     private Date createdAt;
     private String storeName;
-    private boolean expired;
+    private String status;
     private Date lastUpdate;
 
     @ManyToOne

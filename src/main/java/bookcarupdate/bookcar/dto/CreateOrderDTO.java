@@ -7,8 +7,8 @@ import java.util.Date;
 
 @Data
 public class CreateOrderDTO {
-    private String pickUpAddress;
-    private String destinationAddress;
+    private LocationDTO pickUpAddress;
+    private LocationDTO destinationAddress;
     private LocalDateTime pickTime;
     private String message;
     private int quantity;

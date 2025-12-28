@@ -17,12 +17,33 @@ import java.util.function.Function;
 @Service
 public class JWTServiceImpl implements JWTservice {
 
-    public String generateToken(UserDetails userDetails){
-        return Jwts.builder().setSubject(userDetails.getUsername())
+//    public String generateToken(UserDetails userDetails){
+//        return Jwts.builder().setSubject(userDetails.getUsername())
+//                .setIssuedAt(new Date(System.currentTimeMillis()))
+//                .setExpiration(new Date(System.currentTimeMillis()+ 1000*60*240))
+//                .signWith(getSigninKey(), SignatureAlgorithm.HS256)
+//                .compact();
+//    }
+    @Override
+    public String generateToken(UserDetails userDetails) {
+        Map<String, Object> claims = Map.of(
+                "role", userDetails.getAuthorities()
+                        .stream()
+                        .findFirst()
+                        .map(a -> a.getAuthority().replace("ROLE_", ""))
+                        .orElse("USER")
+        );
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userDetails.getUsername()) // email
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+ 1000*60*240))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 240))
                 .signWith(getSigninKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+    public String extractRole(String token) {
+        return extractAllClaims(token).get("role", String.class);
     }
 
     @Override

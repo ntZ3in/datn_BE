@@ -9,4 +9,5 @@ public interface JWTservice {
     String generateToken(UserDetails userDetails);
     String generateRefreshToken(Map<String, Object> extractClaims, UserDetails userDetails);
     boolean isTokenValid(String jwt, UserDetails userDetails);
+    public String extractRole(String token);
 }

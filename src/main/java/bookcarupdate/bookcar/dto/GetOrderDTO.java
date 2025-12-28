@@ -13,8 +13,8 @@ public class GetOrderDTO {
     private Long orderId;
     private String name; // tên vé
     private String owner_name; // tên nhà xe
-    private String pickUpAddress;
-    private String destinationAddress;
+    private LocationDTO pickUpAddress;
+    private LocationDTO destinationAddress;
     private LocalDateTime pickTime;
     private String message;
     private int quantity;

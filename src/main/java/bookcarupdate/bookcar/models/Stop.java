@@ -22,8 +22,12 @@ public class Stop {
     private Long stopID;
     @DateTimeFormat(pattern = "HH:mm:ss")
     private LocalTime stopTime;
-    private String stopAddress;
-    private boolean rightNow;
+
+    @ManyToOne
+    @JoinColumn(name = "location_id")
+    private Location location;
+
+    private String type;
     private boolean deleted;
     private Date createdAt;
 

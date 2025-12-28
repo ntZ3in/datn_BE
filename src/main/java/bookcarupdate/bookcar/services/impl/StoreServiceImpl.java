@@ -22,4 +22,9 @@ public class StoreServiceImpl implements StoreService {
     public List<Store> findAll(){
         return storeRepository.findAll();
     }
+
+    @Override
+    public Store getStoreByOwnerEmail(String email) {
+        return storeRepository.getStoreByOwnerEmail(email);
+    }
 }

@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface StoreService {
     public Optional<Store> getStore(Long id);
     public List<Store> findAll();
+    public Store getStoreByOwnerEmail(String email);
 }

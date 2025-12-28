@@ -19,8 +19,8 @@ public class ProductSearchDTO {
     private String description;
     private String phone_number;
     private String phone_number2;
-    private String start_address;
-    private String end_address;
+    private LocationDTO startLocation;
+    private LocationDTO endLocation;
     private LocalTime start_time;
     private LocalTime end_time;
     private Double price;
@@ -34,8 +34,9 @@ public class ProductSearchDTO {
     private String status;
     private String owner_name;
     private Long store_id;
-//    private List<ImageDTO> imageDTOS;
-//    private List<CreateNoticeDTO> noticeDTOS;
+    private List<ImageDTO> imageDTOS;
+    private List<CreateNoticeDTO> noticeDTOS;
+    private List<StopDTO> stopDTOS;
 
     private Long trip_id;
     private LocalDate travel_date;
@@ -45,6 +46,8 @@ public class ProductSearchDTO {
     private int remain_seat;
     private String trip_status;
 
+    private Double distance;
+
     @Override
     public String toString() {
         return "ProductSearchDTO{" +
@@ -53,8 +56,8 @@ public class ProductSearchDTO {
                 ", description='" + description + '\'' +
                 ", phone_number='" + phone_number + '\'' +
                 ", phone_number2='" + phone_number2 + '\'' +
-                ", start_address='" + start_address + '\'' +
-                ", end_address='" + end_address + '\'' +
+                ", startLocation=" + startLocation +
+                ", endLocation=" + endLocation +
                 ", start_time=" + start_time +
                 ", end_time=" + end_time +
                 ", price=" + price +
@@ -68,6 +71,9 @@ public class ProductSearchDTO {
                 ", status='" + status + '\'' +
                 ", owner_name='" + owner_name + '\'' +
                 ", store_id=" + store_id +
+                ", imageDTOS=" + imageDTOS +
+                ", noticeDTOS=" + noticeDTOS +
+                ", stopDTOS=" + stopDTOS +
                 ", trip_id=" + trip_id +
                 ", travel_date=" + travel_date +
                 ", trip_start_time=" + trip_start_time +
@@ -75,6 +81,7 @@ public class ProductSearchDTO {
                 ", trip_price=" + trip_price +
                 ", remain_seat=" + remain_seat +
                 ", trip_status='" + trip_status + '\'' +
+                ", distance=" + distance +
                 '}';
     }
 }

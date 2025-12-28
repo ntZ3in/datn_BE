@@ -25,8 +25,15 @@ public class Product {
     private String description;
     private String phone_number;
     private String phone_number2;
-    private String start_address;
-    private String end_address;
+
+    @ManyToOne
+    @JoinColumn(name = "start_location_id")
+    private Location startLocation;
+
+    @ManyToOne
+    @JoinColumn(name = "end_location_id")
+    private Location endLocation;
+
     private LocalTime start_time;
     private LocalTime end_time;
     private Double price;
@@ -40,7 +47,7 @@ public class Product {
     private String status;
     private String owner_name;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIdentityReference(alwaysAsId = true)
     @JsonManagedReference
     private List<Image> images;
@@ -50,7 +57,7 @@ public class Product {
     @JsonBackReference  // Đánh dấu mối quan hệ không quản lý
     private Store store;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIdentityReference(alwaysAsId = true)
     @JsonManagedReference  // Đánh dấu mối quan hệ quản lý
     private List<Stop> stopList;
@@ -68,8 +75,8 @@ public class Product {
                 ", description='" + description + '\'' +
                 ", phone_number='" + phone_number + '\'' +
                 ", phone_number2='" + phone_number2 + '\'' +
-                ", start_address='" + start_address + '\'' +
-                ", end_address='" + end_address + '\'' +
+                ", startLocation=" + startLocation +
+                ", endLocation=" + endLocation +
                 ", start_time=" + start_time +
                 ", end_time=" + end_time +
                 ", price=" + price +

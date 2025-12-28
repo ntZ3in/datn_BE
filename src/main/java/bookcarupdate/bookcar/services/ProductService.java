@@ -1,5 +1,6 @@
 package bookcarupdate.bookcar.services;
 
+import bookcarupdate.bookcar.dto.LocationDTO;
 import bookcarupdate.bookcar.dto.ProductDTO;
 import bookcarupdate.bookcar.dto.ProductSearchDTO;
 import bookcarupdate.bookcar.models.Product;
@@ -17,11 +18,12 @@ public interface ProductService {
     public Product updateStatusProduct(Long id);
     public Page<Product> getProductPagination(int pageof, int pagesize);
 
-    public List<ProductSearchDTO> findByKeyWord(String key);
-    public List<ProductSearchDTO> findByManyKeyWord(String startCity, String endCity, LocalTime startTime, LocalDate date, String startAddress, String endAddress);
+    public List<ProductSearchDTO> findByKeyWord(String key, LocationDTO userLocation);
+    public List<ProductSearchDTO> findByManyKeyWord(String startCity, String endCity, LocalTime startTime, LocalDate date,
+                                                    LocationDTO startAddress, LocationDTO endAddress, LocationDTO userLocation);
 
     public Optional<Product> findById(Long id);
-    public List<ProductSearchDTO> findAllPagi(int page, int number);
-    public List<ProductSearchDTO> findAll2();
+    public List<ProductSearchDTO> findAllPagi(int page, int number, LocationDTO userLocation);
+    public List<ProductSearchDTO> findAll2(LocationDTO userLocation);
     public void deleteProduct(Long id);
 }

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("api/v1/payment")
+@RequestMapping("api/v1/payment/")
 public class PaymentController {
 
 	@PostMapping("/pay")

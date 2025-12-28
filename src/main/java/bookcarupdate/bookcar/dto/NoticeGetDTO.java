@@ -20,5 +20,5 @@ public class NoticeGetDTO {
     private String content;
     private Date created_at;
     private Date last_update;
-    private boolean expired;
+    private String status;
 }

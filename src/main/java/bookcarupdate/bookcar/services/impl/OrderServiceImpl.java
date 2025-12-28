@@ -5,14 +5,9 @@ import bookcarupdate.bookcar.dto.GetOrderDTO;
 import bookcarupdate.bookcar.dto.OrderDTO;
 import bookcarupdate.bookcar.dto.UpdateOrderDTO;
 import bookcarupdate.bookcar.exception.CloudNotFoundException;
-import bookcarupdate.bookcar.models.Order;
-import bookcarupdate.bookcar.models.Product;
-import bookcarupdate.bookcar.models.Trip;
-import bookcarupdate.bookcar.models.User;
-import bookcarupdate.bookcar.repositories.OrderRepository;
-import bookcarupdate.bookcar.repositories.ProductRepository;
-import bookcarupdate.bookcar.repositories.TripRepository;
-import bookcarupdate.bookcar.repositories.UserRepository;
+import bookcarupdate.bookcar.models.*;
+import bookcarupdate.bookcar.repositories.*;
+import bookcarupdate.bookcar.services.LocationService;
 import bookcarupdate.bookcar.services.OrderService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +20,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final TripRepository tripRepository;
+    private final LocationService locationService;
     @Override
     public Order createOrder(CreateOrderDTO createOrderDTO) {
         System.out.println(createOrderDTO);
@@ -35,10 +31,24 @@ public class OrderServiceImpl implements OrderService {
         order.setPrice(createOrderDTO.getPrice());
         order.setQuantity(createOrderDTO.getQuantity());
         order.setTotalPrice(createOrderDTO.getTotalPrice());
-        order.setDestinationAddress(createOrderDTO.getDestinationAddress());
+
+        Location pickUpAddress = locationService.findOrCreate(
+                createOrderDTO.getPickUpAddress().getName(),
+                createOrderDTO.getPickUpAddress().getLat(),
+                createOrderDTO.getPickUpAddress().getLng()
+        );
+
+        // tìm hoặc tạo địa điểm kết thúc
+        Location destinationAddress = locationService.findOrCreate(
+                createOrderDTO.getDestinationAddress().getName(),
+                createOrderDTO.getDestinationAddress().getLat(),
+                createOrderDTO.getDestinationAddress().getLng()
+        );
+        order.setPickLocation(pickUpAddress);
+        order.setDestinationLocation(destinationAddress);
+
         order.setPhoneNumber(createOrderDTO.getPhoneNumber());
         order.setPickTime(createOrderDTO.getPickTime());
-        order.setPickUpAddress(createOrderDTO.getPickUpAddress());
         order.setLastUpdate(new Date());
 
         Trip trip = tripRepository.findById(createOrderDTO.getId()).orElseThrow(()->new CloudNotFoundException("Trip not found"));
@@ -61,11 +71,24 @@ public class OrderServiceImpl implements OrderService {
             order.setPrice(createOrderDTO.getPrice());
             order.setQuantity(createOrderDTO.getQuantity());
             order.setTotalPrice(createOrderDTO.getTotalPrice());
-            order.setDestinationAddress(createOrderDTO.getDestinationAddress());
             order.setPhoneNumber(createOrderDTO.getPhoneNumber());
             order.setPickTime(createOrderDTO.getPickTime());
-            order.setPickUpAddress(createOrderDTO.getPickUpAddress());
             order.setLastUpdate(new Date());
+
+            Location pickUpAddress = locationService.findOrCreate(
+                    createOrderDTO.getPickUpAddress().getName(),
+                    createOrderDTO.getPickUpAddress().getLat(),
+                    createOrderDTO.getPickUpAddress().getLng()
+            );
+
+            // tìm hoặc tạo địa điểm kết thúc
+            Location destinationAddress = locationService.findOrCreate(
+                    createOrderDTO.getDestinationAddress().getName(),
+                    createOrderDTO.getDestinationAddress().getLat(),
+                    createOrderDTO.getDestinationAddress().getLng()
+            );
+            order.setPickLocation(pickUpAddress);
+            order.setDestinationLocation(destinationAddress);
 
             Trip trip = tripRepository.findById(createOrderDTO.getId()).orElse(null);
             if(trip == null) {

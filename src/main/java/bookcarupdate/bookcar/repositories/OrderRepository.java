@@ -13,90 +13,69 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-
-//    @Query(value = "SELECT o.order_id as orderId, o.created_at as createdAt, o.message as message " +
-//            ", o.order_status as orderStatus, o.phone_number as phoneNumber, o.pick_time as pickTime " +
-//            ", o.pick_up_address as pickUpAddress, o.quantity as quantity " +
-//            ",o.total_price as totalPrice " +
-//            ", o.user_id as userId, o.destination_address as destinationAddress " +
-//            ", p.product_name as productName, p.price as price, p.product_id as productId " +
-//            "FROM order_tb o " +
-//            "JOIN product_tb p ON o.product_id = p.product_id " +
-//            "JOIN store_tb s ON p.store_id = s.store_id " +
-//            "WHERE s.store_id = :store_id " +
-//            "ORDER BY o.created_at DESC"
-//            , nativeQuery = true)
-//    List<OrderDto> getAllStoreOrder(@Param("store_id") Long store_id);
-//
-//    @Query(value = "SELECT o.order_id as orderId, o.created_at as createdAt, o.message as message " +
-//            ", o.order_status as orderStatus, o.phone_number as phoneNumber, o.pick_time as pickTime " +
-//            ", o.pick_up_address as pickUpAddress, o.quantity as quantity " +
-//            ", o.total_price as totalPrice " +
-//            ", o.user_id as userId, o.destination_address as destinationAddress " +
-//            ", p.product_name as productName, p.price as price, p.product_id as productId " +
-//            "FROM order_tb o " +
-//            "JOIN product_tb p ON o.product_id = p.product_id " +
-//            "WHERE user_id = :user_id " +
-//            "ORDER BY o.created_at DESC"
-//            , nativeQuery = true)
-//    List<OrderDto> getAllUserOrder(@Param("user_id") Long user_id);
-
-//    @Query(value = "select o.* from tblorder o inner join tbltrip t on t.trip_id = o.trip_id inner join tbluser u ON o.user_id = u.user_id WHERE u.email = :email order by o.created_at desc",nativeQuery = true)
-//    List<Order> findAllByEmailUser(@Param("email") String email);
-
-    @Query("SELECT new bookcarupdate.bookcar.dto.GetOrderDTO(" +
-            "o.orderID," +
-            "p.name, " +
-            "p.owner_name, " +
-            "o.pickUpAddress, " +
-            "o.destinationAddress, " +
-            "o.pickTime, " +
-            "o.message, " +
-            "o.quantity, " +
-            "o.phoneNumber, " +
-            "o.price, " +
-            "CAST(o.quantity * o.price AS double), " +
-            "o.orderStatus, " +
-            "o.trip.tripId," +
-            "o.createdAt" +
-            ") " +
-            "FROM Order o " +
-            "JOIN o.trip t " +
-            "JOIN t.product p " +
-            "WHERE o.user.email = :email order by o.createdAt desc")
-    List<GetOrderDTO> findAllByEmailUser(@Param("email") String email);
-
-//    @Query(value = """
-//        SELECT o.*
-//        FROM tblorder o
-//        INNER JOIN tbltrip t ON t.trip_id = o.trip_id
-//        INNER JOIN tblproduct p ON t.product_id = p.product_id
-//        INNER JOIN tblstore s ON s.store_id = p.store_id
-//        WHERE s.store_id = :id
-//        ORDER BY o.created_at DESC
-//        """,
-//            nativeQuery = true)
-    @Query("select new bookcarupdate.bookcar.dto.GetOrderDTO(" +
-            "o.orderID," +
-            "p.name, " +
-            "p.owner_name, " +
-            "o.pickUpAddress, " +
-            "o.destinationAddress, " +
-            "o.pickTime, " +
-            "o.message, " +
-            "o.quantity, " +
-            "o.phoneNumber, " +
-            "o.price, " +
-            "CAST(o.quantity * o.price AS double), " +
-            "o.orderStatus, " +
-            "o.trip.tripId," +
-            "o.createdAt" +
-            ") " +
-            "FROM Order o " +
-            "JOIN o.trip t " +
-            "JOIN t.product p " +
-            "JOIN p.store s " +
-            "WHERE s.storeID = :id order by o.createdAt desc " )
+    @Query("""
+        select new bookcarupdate.bookcar.dto.GetOrderDTO(
+            o.orderID,
+            p.name,
+            p.owner_name,
+            new bookcarupdate.bookcar.dto.LocationDTO(
+                o.pickLocation.name,
+                o.pickLocation.lat,
+                o.pickLocation.lng
+            ),
+            new bookcarupdate.bookcar.dto.LocationDTO(
+                o.destinationLocation.name,
+                o.destinationLocation.lat,
+                o.destinationLocation.lng
+            ),
+            o.pickTime,
+            o.message,
+            o.quantity,
+            o.phoneNumber,
+            o.price,
+            CAST (o.quantity * o.price as double ),
+            o.orderStatus,
+            t.tripId,
+            o.createdAt
+        )
+        FROM Order o
+        JOIN o.trip t
+        JOIN t.product p
+        JOIN p.store s
+        WHERE s.storeID = :id
+        ORDER BY o.createdAt DESC
+        """)
     List<GetOrderDTO> findAllByIdStore(@Param("id") Long id);
 
+    @Query("""
+        select new bookcarupdate.bookcar.dto.GetOrderDTO(
+            o.orderID,
+            p.name,
+            p.owner_name,
+            new bookcarupdate.bookcar.dto.LocationDTO(
+                o.pickLocation.name,
+                o.pickLocation.lat,
+                o.pickLocation.lng
+            ),
+            new bookcarupdate.bookcar.dto.LocationDTO(
+                o.destinationLocation.name,
+                o.destinationLocation.lat,
+                o.destinationLocation.lng
+            ),
+            o.pickTime,
+            o.message,
+            o.quantity,
+            o.phoneNumber,
+            o.price,
+            CAST (o.quantity * o.price as double ),
+            o.orderStatus,
+            t.tripId,
+            o.createdAt
+        )
+        FROM Order o
+        JOIN o.trip t
+        JOIN t.product p
+        WHERE o.user.email = :email order by o.createdAt desc
+        """)
+    List<GetOrderDTO> findAllByEmailUser(@Param("email") String email);
 }

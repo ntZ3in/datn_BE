@@ -19,8 +19,14 @@ public class Order {
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     @Column(name = "order_id")
     private Long orderID;
-    private String pickUpAddress;
-    private String destinationAddress;
+
+    @ManyToOne
+    @JoinColumn(name = "pick_location_id")
+    private Location pickLocation;
+    @ManyToOne
+    @JoinColumn(name = "destination_location_id")
+    private Location destinationLocation;
+
     private LocalDateTime pickTime;
     private String message;
     private int quantity;
