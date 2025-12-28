@@ -124,18 +124,16 @@ public class AdminController {
             List<Map<String, Object>> userResponses = users.stream()
                     .map(user -> {
                         Map<String, Object> userMap = new HashMap<>();
-                        userMap.put("userID", user.getUserID());
-                        // Use account username (email) as display name to avoid Lombok getter issues
-                        userMap.put("username", user.getUsername());
+                        userMap.put("user_id", user.getUserID());
+                        userMap.put("user_name", user.getUserName());
                         userMap.put("email", user.getEmail());
                         userMap.put("phone_number", user.getPhone_number());
                         userMap.put("role", user.getRole().toString());
-                        userMap.put("createAt", user.getCreatedAt());
-                        userMap.put("status", "active"); // Mặc định, có thể thêm field status vào User model
+                        userMap.put("created_at", user.getCreatedAt());
                         
                         // Đếm số đơn hàng của user
                         int totalOrders = user.getOrderList() != null ? user.getOrderList().size() : 0;
-                        userMap.put("totalOrders", totalOrders);
+                        userMap.put("total_orders", totalOrders);
                         
                         return userMap;
                     })

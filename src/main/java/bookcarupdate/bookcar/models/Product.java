@@ -1,6 +1,8 @@
 package bookcarupdate.bookcar.models;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import jakarta.persistence.*;
 import lombok.*;
 import org.w3c.dom.Text;
@@ -16,6 +18,7 @@ import java.util.List;
 @Entity
 @Table(name = "tblproduct")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

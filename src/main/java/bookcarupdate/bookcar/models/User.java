@@ -1,6 +1,8 @@
 package bookcarupdate.bookcar.models;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,6 +19,7 @@ import java.util.List;
 @Entity
 @Table(name = "tbluser")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userID")
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

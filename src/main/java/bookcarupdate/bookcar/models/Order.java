@@ -2,6 +2,8 @@ package bookcarupdate.bookcar.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonNaming;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -14,6 +16,7 @@ import java.util.Date;
 @Setter
 @Entity
 @Table(name = "tblorder")
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Order {
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)

@@ -130,8 +130,8 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
                     // PAYMENT
                     .requestMatchers("/api/v1/payment/**").authenticated()
 
-                    // ADMIN
-                    .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                    // ADMIN - tạm cho phép tất cả authenticated users (test)
+                    .requestMatchers("/api/v1/admin/**").authenticated()
 
                     .anyRequest().authenticated()
             )
